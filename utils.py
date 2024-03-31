@@ -27,22 +27,23 @@ def enhance_image(img,background):
   # floodfill algorithm
   mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
   flood_img = background.copy()
-  flood_deta = (10,10,10)
+  flood_deta = (5,5,5)
   cv2.floodFill(flood_img, mask, (0,0), 255, flood_deta, flood_deta)
-  contours, _ = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-  cv2.drawContours(mask, contours, -1, 255, 3)
+  contours, _ = cv2.findContours((1-mask),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
   center,angle = None,None
   approx_size = None
 
-  iter_num = 0
+  find_box = False
   for contour in contours:
     # calculate perimeter
+    # mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+    # cv2.drawContours(mask, contour, -1, 255, 3)
+    # plt.imshow(mask),plt.show()
     perimeter = cv2.arcLength(contour, True)
     approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
 
     # get the position and angle of image
-    if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 1000 and cv2.contourArea(approx) < 10000:
-      cv2.drawContours(mask, [approx], -1, 255, 3)
+    if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 1000 and cv2.contourArea(approx) < 30000:
       center, angle = get_approx_angle(approx)
 
       approx = np.squeeze(approx)
@@ -51,13 +52,11 @@ def enhance_image(img,background):
       approx_down_width = np.sqrt(np.dot(approx[2]-approx[3],approx[2]-approx[3]))
       approx_right_length = np.sqrt(np.dot(approx[3]-approx[0],approx[3]-approx[0]))
       approx_size = np.multiply([(approx_up_width + approx_down_width),(approx_left_length + approx_right_length)],0.6)
+      find_box = True
       break
-    iter_num += 1
-  assert iter_num <= len(contours), "No quadrilateral found in the image"
+  assert find_box,"No quaters found in the image"
   # calculate the image size in the realworld snapshot image
 
-  mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-  cv2.drawContours(mask, [approx], -1, 255, 3)
   # caltulate resize ratio
   max_side_length = approx_size.max()
   img_side_length = img.shape[0]
