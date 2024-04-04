@@ -37,9 +37,6 @@ def enhance_image(img,background):
   find_box = False
   for contour in contours:
     # calculate perimeter
-    # mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-    # cv2.drawContours(mask, contour, -1, 255, 3)
-    # plt.imshow(mask),plt.show()
     perimeter = cv2.arcLength(contour, True)
     approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
 
@@ -80,8 +77,10 @@ def enhance_image(img,background):
 
 
   # rotate image and create new image mask
-  rotated_img = rotate_image(img, angle, ratio)
-  mask = np.equal(rotated_img, 0)*255
+  rotated_img = rotate_image(img.copy(), angle, ratio)
+  # fix number image 0-255 distribution caused mask error
+  rotated_mask = rotate_image(img.copy()+1, angle, ratio)
+  mask = np.equal(rotated_mask, 0)*255
 
   # calculate crop size and crop
   target_size = [background.shape[1], background.shape[0]]
@@ -98,4 +97,14 @@ def enhance_image(img,background):
   masked_img = cv2.bitwise_and(background, mask)
   final_img = cv2.add(rotated_img, masked_img)
 
+  # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  # cv2.drawContours(approx_mask, contour, -1, 255, 3)
+  # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  # cv2.drawContours(contour_mask, contours , -1, 255, 3)
+  # plt.subplot(221),plt.imshow(rotated_img),plt.title("rotated_img")
+  # plt.subplot(222),plt.imshow(mask),plt.title("mask")
+  # plt.subplot(223),plt.imshow(masked_img),plt.title("masked_img")
+  # plt.subplot(224),plt.imshow(final_img),plt.title("final_img")
+  # plt.show()
+  # plt.clf()
   return final_img
