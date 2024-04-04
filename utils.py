@@ -5,7 +5,8 @@ import math
 
 def rotate_image(image, angle,ratio):
   image_center = tuple(np.array(image.shape[1::-1]) / 2)
-  rot_mat = cv2.getRotationMatrix2D(image_center, angle, ratio)
+  random_angle = angle + np.random.choice(np.arange(-180,181,step=90),size=1).item()
+  rot_mat = cv2.getRotationMatrix2D(image_center, random_angle, ratio)
   result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
   return result
 
@@ -27,7 +28,7 @@ def enhance_image(img,background):
   # floodfill algorithm
   mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
   flood_img = background.copy()
-  flood_deta = (5,5,5)
+  flood_deta = (10,10,10)
   cv2.floodFill(flood_img, mask, (0,0), 255, flood_deta, flood_deta)
   contours, _ = cv2.findContours((1-mask),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
   center,angle = None,None
@@ -42,8 +43,12 @@ def enhance_image(img,background):
     perimeter = cv2.arcLength(contour, True)
     approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
 
+
     # get the position and angle of image
-    if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 1000 and cv2.contourArea(approx) < 30000:
+    if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 5000 and cv2.contourArea(approx) < 50000:
+      # mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+      # cv2.drawContours(mask,[approx] , -1, 255, 3)
+      # plt.imshow(mask),plt.show()
       center, angle = get_approx_angle(approx)
 
       approx = np.squeeze(approx)
@@ -54,12 +59,23 @@ def enhance_image(img,background):
       approx_size = np.multiply([(approx_up_width + approx_down_width),(approx_left_length + approx_right_length)],0.6)
       find_box = True
       break
-  assert find_box,"No quaters found in the image"
+  # assert find_box,"No quaters found in the image"
+  if not find_box:
+    # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+    # cv2.drawContours(approx_mask, contour, -1, 255, 3)
+    # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+    # cv2.drawContours(contour_mask, contours , -1, 255, 3)
+    # plt.subplot(221),plt.imshow(background),plt.title("baclground")
+    # plt.subplot(222),plt.imshow(contour_mask),plt.title("contour_mask")
+    # plt.subplot(223),plt.imshow(mask),plt.title("mask")
+    # plt.subplot(224),plt.imshow(approx_mask),plt.title("approx_mask")
+    # plt.show()
+    # plt.clf()
+    assert False, "No quaters found in the image"
   # calculate the image size in the realworld snapshot image
-
-  # caltulate resize ratio
   max_side_length = approx_size.max()
   img_side_length = img.shape[0]
+  # caltulate resize ratio
   ratio = max_side_length / img_side_length
 
 
