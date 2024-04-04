@@ -79,7 +79,7 @@ def enhance_image(img,background):
   # rotate image and create new image mask
   rotated_img = rotate_image(img.copy(), angle, ratio)
   # fix number image 0-255 distribution caused mask error
-  rotated_mask = rotate_image(img.copy()+1, angle, ratio)
+  rotated_mask = rotate_image(img.copy()+5, angle, ratio)
   mask = np.equal(rotated_mask, 0)*255
 
   # calculate crop size and crop
