@@ -35,35 +35,44 @@ def read_background(path):
     return sample_list
 
 def save_image(enhanced,file_calss,file):
+    global save_path
     now = datetime.now()
     current_time = now.strftime("%Y_%m_%d")
-    if not os.path.exists(f'./image_after{current_time}/{file_calss}'):
-        os.makedirs(f'./image_after{current_time}/{file_calss}')
-    if cv2.imwrite(f'./image_after{current_time}/{file_calss}/{file}',enhanced):
+    if not os.path.exists(f'{save_path}/{current_time}/{file_calss}'):
+        os.makedirs(f'{save_path}/{current_time}/{file_calss}')
+    if cv2.imwrite(f'{save_path}/{current_time}/{file_calss}/{file}',enhanced):
         print(f'{file} saved')
 
 def make_enhanced_img(img,bg_list,file_calss):
-    index = 0
-    while(index<30):
+    global total_files
+    global enhance_num_per_class
+    for index in range(enhance_num_per_class):
+
         enhanced = get_enahnced_img(img,bg_list)
         if enhanced is None:
             index -= 1
             continue
 
         now = datetime.now()
-        current_time = now.strftime("%Y_Y%d_%H_H%M_M%S_%f")
-        save_image(enhanced,file_calss,f'{index}_{current_time}.jpg')
+        current_time = now.strftime("%Y_%d_%H_%M_%S_%f")
+        save_image(enhanced,file_calss,f'{total_files}_{current_time}.jpg')
         index += 1
+
 # Read the image
-background_path = './image/image42_100'
-img_path = './image/image_before'
+background_path = './image42_100'
+img_path = './number'
+save_path = './number_enhanced'
+enhance_num_per_class = 30*160
 bg_list = read_background(background_path)
+total_files = None
 
 for root,dir,files in os.walk(img_path):
     for file in files:
+        total_files = 0
         extend_name = ('.jpg','.png')
         if file.endswith(extend_name):
             file_calss = root.split('/')[-1]
             root_file = os.path.join(root,file)
             img = cv2.imread(root_file)
             make_enhanced_img(img,bg_list,file_calss)
+            total_files += 1
