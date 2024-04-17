@@ -14,7 +14,7 @@ def get_enahnced_img(img,bg_list):
     bg_img = cv2.imread(background.item())
     try:
         enhanced = enhance_image(img,bg_img)
-    except :
+    except AssertionError:
         global detect_error
         detect_error += 1
         print(f"Error can't find image in background this is the {detect_error}th")
@@ -62,8 +62,8 @@ def make_enhanced_img(img,bg_list,file_calss):
 
 # Read the image
 background_path = './bg_img'
-img_path = './image/image_before'
-save_path = './number_enhanced'
+img_path = './image/image_data'
+save_path = './image_enhanced'
 enhance_num_per_class = 30
 bg_list = read_background(background_path)
 total_files = None
@@ -80,5 +80,5 @@ for root,dir,files in os.walk(img_path):
             total_files += 1
 
 json_string = json.dumps(fail_backgroud)
-with open('data.json', 'w') as f:
+with open('data_enhance_fail.json', 'w') as f:
     json.dump(json_string, f)

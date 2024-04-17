@@ -3,12 +3,48 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-def rotate_image(image, angle,ratio):
-  image_center = tuple(np.array(image.shape[1::-1]) / 2)
-  random_angle = angle + np.random.choice(np.arange(-180,181,step=90),size=1).item()
-  rot_mat = cv2.getRotationMatrix2D(image_center, random_angle, ratio)
-  result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
-  return result
+# def rotate_image(image, angle,ratio):
+#   image_center = tuple(np.array(image.shape[1::-1]) / 2)
+#   random_angle = angle + np.random.choice(np.arange(-180,181,step=90),size=1).item()
+#   rot_mat = cv2.getRotationMatrix2D(image_center, random_angle, ratio)
+#   result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
+#   return result
+
+def check_in_range_and_fix(crope_start,crope_end,bg_size):
+
+  bg_size = bg_size[::-1]
+
+  if crope_start[0] < 0:
+    crope_end[0] -= crope_start[0]
+    crope_start[0] = 0
+
+  if crope_start[1] < 0:
+    crope_end[1] -= crope_start[1]
+    crope_start[1] = 0
+
+  if crope_end[0] > bg_size[0]:
+    crope_start[0] -=  np.abs(crope_end[0] - bg_size[0])
+    crope_end[0] = bg_size[0]
+
+  if crope_end[1] > bg_size[1]:
+    crope_start[1] -= np.abs(crope_end[1] - bg_size[1])
+    crope_end[1] = bg_size[1]
+
+  return crope_start,crope_end
+
+def demo(lst, k):
+  x = lst[k-1::-1]
+  y = lst[:k-1:-1]
+  return np.float32(np.concatenate((x,y),axis=0))
+
+def perspective_transform(image,approx,bg_size):
+  approx = demo(approx,np.random.choice([0,1,2,3]).item())
+  origin = np.float32([[0,0],[0,image.shape[1]-1],[image.shape[0]-1,image.shape[1]-1],[image.shape[0]-1,0],])
+  # approx = np.float32(demo(approx,-2))
+  transfor_mat = cv2.getPerspectiveTransform(origin,approx)
+  out = cv2.warpPerspective(image, transfor_mat, (image.shape[1],image.shape[1]))
+  out = out[0:bg_size[0],0:bg_size[1]]
+  return out
 
 def get_approx_angle(approx) -> list[np.array,np.array]:
   # oblique in the image
@@ -24,7 +60,7 @@ def get_approx_angle(approx) -> list[np.array,np.array]:
   
   return center, angle
   
-def enhance_image(img,background):
+def enhance_image(img,background,cropped_size = np.array([320,320])):
   # floodfill algorithm
   mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
   # mask_2 = np.ones(np.add(background.shape,2)[:2], np.uint8)
@@ -59,8 +95,23 @@ def enhance_image(img,background):
       approx_left_length = np.sqrt(np.dot(approx[1]-approx[2],approx[1]-approx[2]))
       approx_down_width = np.sqrt(np.dot(approx[2]-approx[3],approx[2]-approx[3]))
       approx_right_length = np.sqrt(np.dot(approx[3]-approx[0],approx[3]-approx[0]))
-      approx_size = np.multiply([(approx_up_width + approx_down_width),(approx_left_length + approx_right_length)],0.55)
+      approx_size = np.multiply([(approx_up_width + approx_down_width),(approx_left_length + approx_right_length)],0.51)
       find_box = True
+
+      crope_center = approx.mean(axis=0)
+      noise = np.random.normal(-20, 20, (2,)) 
+      crope_center += noise
+      crope_start = crope_center - cropped_size//2
+      crope_end = crope_center + cropped_size//2
+      
+      background = cv2.circle(background, np.int32(crope_start), radius=0, color=(255, 255, 255), thickness=10)
+      background = cv2.circle(background, np.int32(crope_end), radius=0, color=(255, 255, 255), thickness=10)
+      # plt.imshow(background),plt.show()
+      
+      crope_start,crope_end = check_in_range_and_fix(crope_start,crope_end,background.shape[:2])
+      crope_start = crope_start.astype(int)
+      crope_end = crope_end.astype(int)
+
       break
   # assert find_box,"No quaters found in the image"
   if not find_box:
@@ -85,35 +136,36 @@ def enhance_image(img,background):
 
 
   # rotate image and create new image mask
-  rotated_img = rotate_image(img.copy(), angle, ratio)
+  rotated_img = perspective_transform(img.copy(), approx, background.shape[:2])
   # fix number image 0-255 distribution caused mask error
-  rotated_mask = rotate_image(img.copy()+5, angle, ratio)
+  rotated_mask = perspective_transform(img.copy()+5, approx,background.shape[:2])
   mask = np.equal(rotated_mask, 0)*255
 
-  # calculate crop size and crop
-  target_size = [background.shape[1], background.shape[0]]
-  w_crop_start = int(img.shape[0]//2 - center[0][0])
-  w_crop_end = int(w_crop_start + target_size[0])
-  h_crop_start = int(img.shape[1]//2 - center[0][1])
-  h_crop_end = int(h_crop_start + target_size[1])
-  mask = mask[h_crop_start:h_crop_end, w_crop_start:w_crop_end]
-  rotated_img = rotated_img[h_crop_start:h_crop_end, w_crop_start:w_crop_end]
+  # # calculate crop size and crop to bg_size
+  # target_size = [background.shape[1], background.shape[0]]
+  # w_crop_start = int(img.shape[0]//2 - center[0][0])
+  # w_crop_end = int(w_crop_start + target_size[0])
+  # h_crop_start = int(img.shape[1]//2 - center[0][1])
+  # h_crop_end = int(h_crop_start + target_size[1])
+  # mask = mask[h_crop_start:h_crop_end, w_crop_start:w_crop_end]
+  # rotated_img = rotated_img[h_crop_start:h_crop_end, w_crop_start:w_crop_end]
 
   # bit wise and 
   background = cv2.convertScaleAbs(background)
   mask = cv2.convertScaleAbs(mask)
   masked_img = cv2.bitwise_and(background, mask)
   final_img = cv2.add(rotated_img, masked_img)
+  final_img = final_img[crope_start[1]:crope_end[1],crope_start[0]:crope_end[0]]
 
-  # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-  # cv2.drawContours(approx_mask, contour, -1, 255, 3)
-  # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-  # cv2.drawContours(contour_mask, contours , -1, 255, 3)
-  # plt.subplot(221),plt.imshow(contour_mask),plt.title("contour_mask")
-  # plt.subplot(222),plt.imshow(background),plt.title("background")
-  # plt.subplot(223),plt.imshow(approx_mask),plt.title("approx_mask")
-  # plt.subplot(224),plt.imshow(final_img),plt.title("final_img")
-  # plt.show()
-  # plt.clf()
+  approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  cv2.drawContours(approx_mask, contour, -1, 255, 3)
+  contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  cv2.drawContours(contour_mask, contours , -1, 255, 3)
+  plt.subplot(221),plt.imshow(rotated_mask),plt.title("rotated_mask")
+  plt.subplot(222),plt.imshow(background),plt.title("background")
+  plt.subplot(223),plt.imshow(approx_mask),plt.title("approx_mask")
+  plt.subplot(224),plt.imshow(final_img),plt.title("final_img")
+  plt.show()
+  plt.clf()
   
   return final_img
