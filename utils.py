@@ -39,7 +39,10 @@ def demo(lst, k):
 
 def perspective_transform(image,approx,bg_size):
   approx = demo(approx,np.random.choice([0,1,2,3]).item())
-  origin = np.float32([[0,0],[0,image.shape[1]-1],[image.shape[0]-1,image.shape[1]-1],[image.shape[0]-1,0],])
+  
+  enlage_deta = 40
+  origin = np.float32([[enlage_deta,enlage_deta],[enlage_deta,image.shape[1]-enlage_deta],
+                       [image.shape[0]-enlage_deta,image.shape[1]-enlage_deta],[image.shape[0]-enlage_deta,enlage_deta],])
   # approx = np.float32(demo(approx,-2))
   transfor_mat = cv2.getPerspectiveTransform(origin,approx)
   out = cv2.warpPerspective(image, transfor_mat, (image.shape[1],image.shape[1]))
@@ -157,15 +160,15 @@ def enhance_image(img,background,cropped_size = np.array([320,320])):
   final_img = cv2.add(rotated_img, masked_img)
   final_img = final_img[crope_start[1]:crope_end[1],crope_start[0]:crope_end[0]]
 
-  approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-  cv2.drawContours(approx_mask, contour, -1, 255, 3)
-  contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-  cv2.drawContours(contour_mask, contours , -1, 255, 3)
-  plt.subplot(221),plt.imshow(rotated_mask),plt.title("rotated_mask")
-  plt.subplot(222),plt.imshow(background),plt.title("background")
-  plt.subplot(223),plt.imshow(approx_mask),plt.title("approx_mask")
-  plt.subplot(224),plt.imshow(final_img),plt.title("final_img")
-  plt.show()
-  plt.clf()
+  # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  # cv2.drawContours(approx_mask, contour, -1, 255, 3)
+  # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  # cv2.drawContours(contour_mask, contours , -1, 255, 3)
+  # plt.subplot(221),plt.imshow(rotated_mask),plt.title("rotated_mask")
+  # plt.subplot(222),plt.imshow(background),plt.title("background")
+  # plt.subplot(223),plt.imshow(approx_mask),plt.title("approx_mask")
+  # plt.subplot(224),plt.imshow(final_img),plt.title("final_img")
+  # plt.show()
+  # plt.clf()
   
   return final_img

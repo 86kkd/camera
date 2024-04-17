@@ -61,10 +61,10 @@ def make_enhanced_img(img,bg_list,file_calss):
         index += 1
 
 # Read the image
-background_path = './bg_img'
-img_path = './image/image_data'
-save_path = './image_enhanced'
-enhance_num_per_class = 30
+background_path = './bg_number'
+img_path = './number'
+save_path = './number_enhanced'
+enhance_num_per_class = 6000
 bg_list = read_background(background_path)
 total_files = None
 
@@ -78,7 +78,11 @@ for root,dir,files in os.walk(img_path):
             img = cv2.imread(root_file)
             make_enhanced_img(img,bg_list,file_calss)
             total_files += 1
-
-json_string = json.dumps(fail_backgroud)
-with open('data_enhance_fail.json', 'w') as f:
-    json.dump(json_string, f)
+if type(fail_backgroud) == list:
+    json_string = json.dumps(fail_backgroud)
+    with open('data_enhance_fail.json', 'w') as f:
+        json.dump(json_string, f)
+elif type(fail_backgroud) == np.ndarray:
+    json_string = json.dumps(fail_backgroud.tolist())
+    with open('data_enhance_fail.json', 'w') as f:
+        json.dump(json_string, f)
