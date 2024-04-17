@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from utils import *
 import os     
 from datetime import datetime
-
+import json
 
 fail_backgroud = []
 detect_error = 0
@@ -20,6 +20,8 @@ def get_enahnced_img(img,bg_list):
         print(f"Error can't find image in background this is the {detect_error}th")
         fail_backgroud.append(background)
         bg_list.remove(background)
+        # cv2.imshow('bg_img',bg_img)
+        # cv2.waitKey(0)
         return get_enahnced_img(img,bg_list)
     return enhanced
 
@@ -59,10 +61,10 @@ def make_enhanced_img(img,bg_list,file_calss):
         index += 1
 
 # Read the image
-background_path = './image42_100'
-img_path = './number'
+background_path = './bg_img'
+img_path = './image/image_before'
 save_path = './number_enhanced'
-enhance_num_per_class = 30*160
+enhance_num_per_class = 30
 bg_list = read_background(background_path)
 total_files = None
 
@@ -76,3 +78,7 @@ for root,dir,files in os.walk(img_path):
             img = cv2.imread(root_file)
             make_enhanced_img(img,bg_list,file_calss)
             total_files += 1
+
+json_string = json.dumps(fail_backgroud)
+with open('data.json', 'w') as f:
+    json.dump(json_string, f)

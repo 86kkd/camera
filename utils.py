@@ -27,22 +27,28 @@ def get_approx_angle(approx) -> list[np.array,np.array]:
 def enhance_image(img,background):
   # floodfill algorithm
   mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  # mask_2 = np.ones(np.add(background.shape,2)[:2], np.uint8)
+  # mask_2[:][449:]
+  inrange_white_img = cv2.inRange(background, np.array([200,200,200]), np.array([255,255,255]))
+  inrange_img = cv2.inRange(background, np.array([0,120,120]), np.array([130,255,255]))
   flood_img = background.copy()
-  flood_deta = (10,10,10)
+  flood_deta = (5,5,5)
   cv2.floodFill(flood_img, mask, (0,0), 255, flood_deta, flood_deta)
   contours, _ = cv2.findContours((1-mask),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+  contours2 , _ = cv2.findContours((255-inrange_img),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+  contours3 , _ = cv2.findContours((255-inrange_white_img),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
   center,angle = None,None
   approx_size = None
 
   find_box = False
-  for contour in contours:
+  for contour in contours3 + contours2+contours:
     # calculate perimeter
     perimeter = cv2.arcLength(contour, True)
     approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
 
 
     # get the position and angle of image
-    if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 5000 and cv2.contourArea(approx) < 50000:
+    if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 10000 and cv2.contourArea(approx) < 50000:
       # mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
       # cv2.drawContours(mask,[approx] , -1, 255, 3)
       # plt.imshow(mask),plt.show()
@@ -53,11 +59,12 @@ def enhance_image(img,background):
       approx_left_length = np.sqrt(np.dot(approx[1]-approx[2],approx[1]-approx[2]))
       approx_down_width = np.sqrt(np.dot(approx[2]-approx[3],approx[2]-approx[3]))
       approx_right_length = np.sqrt(np.dot(approx[3]-approx[0],approx[3]-approx[0]))
-      approx_size = np.multiply([(approx_up_width + approx_down_width),(approx_left_length + approx_right_length)],0.6)
+      approx_size = np.multiply([(approx_up_width + approx_down_width),(approx_left_length + approx_right_length)],0.55)
       find_box = True
       break
   # assert find_box,"No quaters found in the image"
   if not find_box:
+
     # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
     # cv2.drawContours(approx_mask, contour, -1, 255, 3)
     # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
@@ -68,6 +75,7 @@ def enhance_image(img,background):
     # plt.subplot(224),plt.imshow(approx_mask),plt.title("approx_mask")
     # plt.show()
     # plt.clf()
+
     assert False, "No quaters found in the image"
   # calculate the image size in the realworld snapshot image
   max_side_length = approx_size.max()
@@ -101,10 +109,11 @@ def enhance_image(img,background):
   # cv2.drawContours(approx_mask, contour, -1, 255, 3)
   # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
   # cv2.drawContours(contour_mask, contours , -1, 255, 3)
-  # plt.subplot(221),plt.imshow(rotated_img),plt.title("rotated_img")
-  # plt.subplot(222),plt.imshow(mask),plt.title("mask")
-  # plt.subplot(223),plt.imshow(masked_img),plt.title("masked_img")
+  # plt.subplot(221),plt.imshow(contour_mask),plt.title("contour_mask")
+  # plt.subplot(222),plt.imshow(background),plt.title("background")
+  # plt.subplot(223),plt.imshow(approx_mask),plt.title("approx_mask")
   # plt.subplot(224),plt.imshow(final_img),plt.title("final_img")
   # plt.show()
   # plt.clf()
+  
   return final_img
