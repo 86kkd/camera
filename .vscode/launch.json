@@ -1,0 +1,32 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "bashdb",
+            "request": "launch",
+            "name": "Bash-Debug",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/openvino2tf.sh",
+            "env": {
+                "PATH": "PATH='$PATH':'/usr/local/cuda/bin'",
+                "LD_LIBRARY_PATH": "LD_LIBRARY_PATH='$LD_LIBRARY_PATH':'/opt/cuda/lib64'",
+            }
+        },
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {
+                "PATH": "PATH='$PATH':'/usr/local/cuda/bin'",
+                "LD_LIBRARY_PATH": "LD_LIBRARY_PATH='$LD_LIBRARY_PATH':'/opt/cuda/lib64'",
+            },
+            "justMyCode": false
+        },
+        
+    ]
+}

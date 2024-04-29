@@ -1,0 +1,35 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+	"name": "tf_gpu",
+    "image": "tensorflow/tensorflow:latest-gpu",
+	"workspaceFolder": "/workspace",
+	"mounts": [
+		"source=${containerWorkspaceFolder},target=/workspace,type=bind"
+	],
+	"forwardPorts": [
+		"8888"
+	],
+	"postCreateCommand": "pip install jupyter",
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/bash"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.vscode-pylance",
+				"ms-python.python",
+				"vscodevim.vim",
+				"ms-vscode-remote.remote-containers",
+				"ms-azuretools.vscode-docker",
+				"mhutchie.git-graph"
+			]
+		}
+	},
+	"runArgs":[
+		"--gpus","all",
+		"--ipc","host",
+		"--user","1000:1000",
+		"--network","host"
+	]
+}
