@@ -29,9 +29,8 @@ def representative_dataset():
         # img = (img - mean_array) / std_array
 
         img = tf.expand_dims(img, 0)  # 添加一个批次维度\
-        img = tf.cast(img,tf.int8)
+        img = tf.cast(img,tf.float32)
         # img = tf.transpose(img, [0, 3, 1, 2])  # 重排维度为 (batch, channels, height, width)
-        # img = tf.cast(img, tf.float32)
 
         # print(tf.reduce_min(img))
         # print(tf.reduce_max(img))
@@ -49,8 +48,9 @@ def representative_dataset():
                 # 应用转换操作
                 img = load_image(root_file)
                 # 产生一个包含图像张量的字典
-                yield [tf.random.uniform(shape=(1, 224, 224, 3), dtype=tf.float32)]
-                # yield {"input0":img}
+                # yield [tf.random.uniform(shape=(1, 224, 224, 3), dtype=tf.float32)]
+                yield [img]
+                # yield {"input_1":img}
 
 
 converter = tf.lite.TFLiteConverter.from_saved_model(args.tf_path)
