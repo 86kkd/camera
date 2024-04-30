@@ -5,15 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "bashdb",
+            "name": "test_mobile",
+            "type": "debugpy",
             "request": "launch",
-            "name": "Bash-Debug",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/openvino2tf.sh",
-            "env": {
-                "PATH": "PATH='$PATH':'/usr/local/cuda/bin'",
-                "LD_LIBRARY_PATH": "LD_LIBRARY_PATH='$LD_LIBRARY_PATH':'/opt/cuda/lib64'",
-            }
+            "program": "${workspaceFolder}/test_mobile.py",
+            "console": "integratedTerminal"
         },
         {
             "name": "Python Debugger: Current File",
@@ -27,6 +23,5 @@
             },
             "justMyCode": false
         },
-        
     ]
 }
