@@ -7,6 +7,14 @@ from PIL import Image
 import numpy as np
 # from onnx_tflite import representative_dataset
 from tqdm import tqdm
+import argparse
+
+parser = argparse.ArgumentParser(description="eval tflite model")
+parser.add_argument('--lite',default='/tmp/tflite_model',metavar='str',
+                    help='path to tflite model')
+parser.add_argument('--val',default='data/valiation',metavar='str',
+                    help='path to valiation data')
+args = parser.parse_args()
 # 构建数据集
 def load_image(path):
     """加载一个图像并将其转换为张量"""
@@ -29,14 +37,14 @@ def preprocess_image(img, size=(224, 224)):
     img = (img - mean_array) / std_array
 
     return img
-data_directory = "./data/val"
+data_directory = args.val
 # 使用 tf.data 从目录构建数据集
 dataset = tf.data.Dataset.list_files(f'{data_directory}/*/*.jpg')  # 根据你的文件格式调整
 dataset = dataset.map(load_image)
 dataset = dataset.map(lambda img: (preprocess_image(img), img))
 dataset = dataset.batch(1)  # 一次性处理 1 张图像
 
-interpreter = tf.lite.Interpreter(model_path="/tmp/tflite_models/mobilenetv3_val.tflite")
+interpreter = tf.lite.Interpreter(model_path=args.lite)
 # Get input and output tensors.
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
