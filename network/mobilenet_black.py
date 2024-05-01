@@ -29,14 +29,14 @@ class SEBlock(tf.keras.layers.Layer):
 
 
 class BottleNeck(tf.keras.layers.Layer):
-    def __init__(self, in_size, exp_size, out_size, s, is_se_existing, NL, k,deep_multiplyer):
+    def __init__(self, in_size, exp_size, out_size, s, is_se_existing, NL, k,depth_multiplyer):
         super(BottleNeck, self).__init__()
         self.stride = s
         self.in_size = in_size
         self.out_size = out_size
         self.is_se_existing = is_se_existing
         self.NL = NL
-        self.conv1 = tf.keras.layers.Conv2D(filters=exp_size*deep_multiplyer,
+        self.conv1 = tf.keras.layers.Conv2D(filters=exp_size*depth_multiplyer,
                                             kernel_size=(1, 1),
                                             strides=1,
                                             padding="same")
@@ -45,8 +45,8 @@ class BottleNeck(tf.keras.layers.Layer):
                                                       strides=s,
                                                       padding="same")
         self.bn2 = tf.keras.layers.BatchNormalization()
-        self.se = SEBlock(input_channels=exp_size*deep_multiplyer)
-        self.pwconv = tf.keras.layers.Conv2D(filters=out_size*deep_multiplyer,
+        self.se = SEBlock(input_channels=exp_size*depth_multiplyer)
+        self.pwconv = tf.keras.layers.Conv2D(filters=out_size*depth_multiplyer,
                                             kernel_size=(1, 1),
                                             strides=1,
                                             padding="same")

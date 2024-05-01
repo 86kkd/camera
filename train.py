@@ -18,11 +18,15 @@ parser.add_argument('--td',default='/tmp/td',metavar='str',
                     help='tensorboard save dir')
 parser.add_argument('--save-path',default='/tmp/tf_model',metavar='str',
                     help='path to save model')
+parser.add_argument('--num-cls',default=15,metavar='N',
+                    help='num classes to classify')
+parser.add_argument('--dm',default=0.5,metavar='float',
+                    help='depth_multiplyer, change it to config total model parameter size')
 args = parser.parse_args()
 
 
 
-model = MobileNetV3Small()
+model = MobileNetV3Small(num_classes=args.num_cls,depth_multiplyer=args.dm)
 model.build(input_shape=(None, 224, 224, 3))
 model.compile(optimizer='adam',
                     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
