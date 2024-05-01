@@ -1,0 +1,15 @@
+A-firearms-0
+B-explosive-1
+C-dagger-2
+D-spontoon-3
+E-fire_axe-4
+F-first_aid_kit-5
+G-flashlight-6
+H-intercom-7
+I-bulletproof_vest-8
+J-telescope-9
+K-helmet-10
+L-fire_engine-11
+M-ambulance-12
+N-armoured_car-13
+O-motorcycle-14
