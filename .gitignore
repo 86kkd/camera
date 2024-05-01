@@ -2,3 +2,6 @@ input
 output
 data
 onnx_models
+logs
+
+**/__pycache__
