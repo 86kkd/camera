@@ -8,6 +8,7 @@ import numpy as np
 # from onnx_tflite import representative_dataset
 from tqdm import tqdm
 import argparse
+from argu_data import normlize
 
 parser = argparse.ArgumentParser(description="eval tflite model")
 parser.add_argument('--lite',default='/tmp/tflite_model/out_put.tflite',metavar='str',
@@ -26,6 +27,8 @@ if args.cls_file:
         class_names = file.read().splitlines()
 else:
     class_names = None
+
+
 val_data = tf.keras.preprocessing.image_dataset_from_directory(
     args.val,
     labels='inferred',
@@ -45,6 +48,8 @@ val_data = tf.keras.preprocessing.image_dataset_from_directory(
     # data_format=None,  # channel_first or chalnnel_last
     # verbose=True
 )
+
+val_data = val_data.map(normlize)
 
 interpreter = tf.lite.Interpreter(model_path=args.lite)
 # Get input and output tensors.
@@ -78,7 +83,7 @@ for batch, (images, lable) in enumerate(val_data):
     # 显示图像和对应的预测标签
     fig, axs = plt.subplots(1, 1, figsize=(20, 2))
     # display_images = tf.transpose(display_images, perm=[0, 3, 1, 2 ])
-    img = (tf.squeeze(display_image).numpy()).astype('uint8')  # 转换回 uint8 类型
+    img = (tf.squeeze(display_image).numpy()).astype('float32')  # 转换回 uint8 类型
     axs.imshow(img)
     axs.set_title(f'predicted: {predicted_label} label:{lable}')
     print(f'the shape of output_data:{output_data}')

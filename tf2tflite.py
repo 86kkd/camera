@@ -4,6 +4,7 @@ import os
 from tqdm import tqdm
 import pathlib
 import argparse
+from argu_data import normlize
 
 parser = argparse.ArgumentParser(description="conver tf to tflite")
 parser.add_argument('--tf-path',default='/tmp/tf_model',metavar='str',
@@ -21,20 +22,11 @@ def representative_dataset():
         img = tf.image.decode_jpeg(img, channels=3)
         img = tf.image.resize(img, [224, 224])
 
-        # img /= 255.0
-        # IMAGENET_DEFAULT_MEAN = tf.constant([0.485, 0.456, 0.406])
-        # IMAGENET_DEFAULT_STD = tf.constant([0.229, 0.224, 0.225])
-        # mean_array = tf.expand_dims(IMAGENET_DEFAULT_MEAN, axis=0)
-        # std_array = tf.expand_dims(IMAGENET_DEFAULT_STD, axis=0)
-        # img = (img - mean_array) / std_array
+        img ,_ = normlize(img,None)
 
         img = tf.expand_dims(img, 0)  # 添加一个批次维度\
         img = tf.cast(img,tf.float32)
-        # img = tf.transpose(img, [0, 3, 1, 2])  # 重排维度为 (batch, channels, height, width)
 
-        # print(tf.reduce_min(img))
-        # print(tf.reduce_max(img))
-        # print(img.shape)
         return img
 
     # 遍历数据集目录

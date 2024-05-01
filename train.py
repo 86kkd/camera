@@ -4,14 +4,15 @@ import argparse
 from tqdm import tqdm
 import datetime
 import pathlib
+from argu_data import normlize
 
 parser = argparse.ArgumentParser(description="tf model train")
-parser.add_argument('--batch-size','-b',default=800,metavar="N",
+parser.add_argument('--batch-size','-b',default=500,metavar="N",
                     help="input batchsize for training")
 parser.add_argument('--epochs',default=599,metavar="N",
                     help="input num train epochs")
 parser.add_argument('--data-set',default='data/training',metavar='str',
-                    help='where is data to train ,subval wirh train and val')
+                    help='where is data to train ')
 parser.add_argument('--image-size',default=224,metavar='N',
                     help="size of image to feed model")
 parser.add_argument('--td',default='/tmp/td',metavar='str',
@@ -47,7 +48,7 @@ log_dir = log_dir / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 tensorboard_callback = tf.keras.callbacks.TensorBoard(
     log_dir=str(log_dir), 
     histogram_freq=1,
-    write_graph=True,
+    # write_graph=True,
     # write_images=True,
     )
 
@@ -103,7 +104,10 @@ val_data = tf.keras.preprocessing.image_dataset_from_directory(
 def augment(x,y):
     image = tf.image.random_brightness(x,max_delta=0.05)
     return image,y
+
 train_data = train_data.map(augment)
+train_data = train_data.map(normlize)
+val_data = val_data.map(normlize)
 # with tf.device(gpus):
 try:
     model.fit(train_data,
