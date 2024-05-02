@@ -3,14 +3,14 @@ import os
 from tqdm import tqdm
 import pathlib
 import argparse
-from argu_data import normlize
+from dataloder.argu_data import normlize
 
 parser = argparse.ArgumentParser(description="conver tf to tflite")
 parser.add_argument('--tf-path',default='/tmp/tf_model',metavar='str',
                     help="the path to saved tf model")
 parser.add_argument('--lite-path',default='/tmp/tflite_model',metavar='str',
                     help="the path t0 saved tflite model")
-parser.add_argument('--val-path',default='./data/valiation',metavar='str',
+parser.add_argument('--val-path',default='./data_set/valiation',metavar='str',
                     help='path to valudate data')
 args = parser.parse_args()
 

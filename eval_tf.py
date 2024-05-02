@@ -5,13 +5,13 @@ import datetime
 import pathlib
 import matplotlib.pyplot as plt
 import os
-from argu_data import normlize
+from dataloder.argu_data import normlize
 
 parser = argparse.ArgumentParser(description="tf model train")
 parser.add_argument('--batch-size','-b',default=1,metavar="int",
                     help="input batchsize for training")
 
-parser.add_argument('--data-set',default='data/training',metavar='str',
+parser.add_argument('--data-set',default='data_set/training',metavar='str',
                     help='where is data to val')
 parser.add_argument('--image-size',default=224,metavar='int',
                     help="size of image to feed model")

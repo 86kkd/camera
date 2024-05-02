@@ -4,6 +4,10 @@ parser = argparse.ArgumentParser(description='input argumnet')
 parser.add_argument('--cls-file',default='class.txt',metavar='str',
                     help='class type file')
 
+# data argumentation
+def arugment(x,y):
+    image = tf.image.random_brightness(x,max_delta=0.05)
+    return image,y
 
 def normlize(x,y):
 

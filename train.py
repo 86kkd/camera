@@ -5,7 +5,7 @@ parser.add_argument('--batch-size','-b',default=500,metavar="int",
                     help="input batchsize for training")
 parser.add_argument('--epochs',default=599,metavar="int",
                     help="input num train epochs")
-parser.add_argument('--data-set',default='data/training',metavar='str',
+parser.add_argument('--data-set',default='data_set/training',metavar='str',
                     help='where is data to train ')
 parser.add_argument('--image-size',default=224,metavar='int',
                     help="size of image to feed model")
@@ -25,7 +25,7 @@ args = parser.parse_args()
 
 import datetime
 import pathlib
-from argu_data import normlize
+from dataloder.argu_data import normlize, arugment
 import tensorflow as tf
 from network.mobilenetv1.mobilenetv1 import MobileNetV1
 
@@ -108,12 +108,7 @@ val_data = tf.keras.preprocessing.image_dataset_from_directory(
     # verbose=True
 )
 
-# data argumentation
-def augment(x,y):
-    image = tf.image.random_brightness(x,max_delta=0.05)
-    return image,y
-
-train_data = train_data.map(augment)
+train_data = train_data.map(arugment)
 train_data = train_data.map(normlize)
 val_data = val_data.map(normlize)
 # with tf.device(gpus):

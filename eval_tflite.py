@@ -8,12 +8,12 @@ import numpy as np
 # from onnx_tflite import representative_dataset
 from tqdm import tqdm
 import argparse
-from argu_data import normlize
+from dataloder.argu_data import normlize
 
 parser = argparse.ArgumentParser(description="eval tflite model")
 parser.add_argument('--lite',default='/tmp/tflite_model/out_put.tflite',metavar='str',
                     help='path to tflite model')
-parser.add_argument('--val',default='data/valiation',metavar='str',
+parser.add_argument('--val',default='data_set/valiation',metavar='str',
                     help='path to valiation data')
 parser.add_argument('--image-size',default=224,metavar='int',
                     help="size of image to feed model")
