@@ -1,9 +1,4 @@
-import tensorflow as tf
-import os
-from tqdm import tqdm
-import pathlib
 import argparse
-from dataloder.argu_data import normlize
 
 parser = argparse.ArgumentParser(description="conver tf to tflite")
 parser.add_argument('--tf-path',default='/tmp/tf_model',metavar='str',
@@ -13,6 +8,12 @@ parser.add_argument('--lite-path',default='/tmp/tflite_model',metavar='str',
 parser.add_argument('--val-path',default='./data_set/valiation',metavar='str',
                     help='path to valudate data')
 args = parser.parse_args()
+
+import tensorflow as tf
+import os
+from tqdm import tqdm
+import pathlib
+from dataloder.argu_data import normlize
 
 def representative_dataset():
     # 定义图像转换操作

@@ -1,14 +1,4 @@
-import tensorflow as tf
-import matplotlib.pyplot as plt
-import os
-import onnx
-from onnx_tf.backend import prepare
-from PIL import Image
-import numpy as np
-# from onnx_tflite import representative_dataset
-from tqdm import tqdm
 import argparse
-from dataloder.argu_data import normlize
 
 parser = argparse.ArgumentParser(description="eval tflite model")
 parser.add_argument('--lite',default='/tmp/tflite_model/out_put.tflite',metavar='str',
@@ -21,6 +11,11 @@ parser.add_argument('--cls-file',default='class.txt',metavar='str',
                     help='class type file')
 
 args = parser.parse_args()
+
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import numpy as np
+from dataloder.argu_data import normlize
 
 if args.cls_file:
     with open(args.cls_file, 'r') as file:

@@ -1,11 +1,4 @@
-import tensorflow as tf
 import argparse
-from tqdm import tqdm
-import datetime
-import pathlib
-import matplotlib.pyplot as plt
-import os
-from dataloder.argu_data import normlize
 
 parser = argparse.ArgumentParser(description="tf model train")
 parser.add_argument('--batch-size','-b',default=1,metavar="int",
@@ -24,6 +17,10 @@ parser.add_argument('--cls-file',default='class.txt',metavar='str',
                     help='class type file')
 
 args = parser.parse_args()
+
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from dataloder.argu_data import normlize
 
 if args.cls_file:
     with open(args.cls_file, 'r') as file:

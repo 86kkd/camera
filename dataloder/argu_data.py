@@ -1,9 +1,10 @@
 import argparse
-import tensorflow as tf
+
 parser = argparse.ArgumentParser(description='input argumnet')
 parser.add_argument('--cls-file',default='class.txt',metavar='str',
                     help='class type file')
 
+import tensorflow as tf
 # data argumentation
 def arugment(x,y):
     image = tf.image.random_brightness(x,max_delta=0.05)
