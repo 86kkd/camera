@@ -14,7 +14,7 @@ def get_enahnced_img(img,bg_list):
     bg_img = cv2.imread(background.item())
     try:
         enhanced = enhance_image(img,bg_img)
-    except AssertionError:
+    except :
         global detect_error
         detect_error += 1
         print(f"Error can't find image in background this is the {detect_error}th")
@@ -61,10 +61,10 @@ def make_enhanced_img(img,bg_list,file_calss):
         index += 1
 
 # Read the image
-background_path = './bg_number'
-img_path = './number'
-save_path = './number_enhanced'
-enhance_num_per_class = 6000
+background_path = './bg_img'
+img_path = './image'
+save_path = './image_enhanced'
+enhance_num_per_class = 1
 bg_list = read_background(background_path)
 total_files = None
 

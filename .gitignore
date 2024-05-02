@@ -17,3 +17,5 @@ mobilenet_v1-128-number.tflite
 image_after*
 image*
 number*
+bg_number
+bg_img

@@ -159,7 +159,9 @@ def enhance_image(img,background,cropped_size = np.array([320,320])):
   masked_img = cv2.bitwise_and(background, mask)
   final_img = cv2.add(rotated_img, masked_img)
   final_img = final_img[crope_start[1]:crope_end[1],crope_start[0]:crope_end[0]]
-
+  if final_img.shape[0] < 320 or final_img.shape[1] < 320:
+    assert False, "The image is too small"
+    
   # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
   # cv2.drawContours(approx_mask, contour, -1, 255, 3)
   # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
