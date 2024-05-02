@@ -31,7 +31,7 @@ def representative_dataset():
         return img
 
     # 遍历数据集目录
-    for root, _, files in os.walk("./data/val"):
+    for root, _, files in os.walk("./data/val/A-firearms-0"):
         if not files:
             continue
         for file in tqdm(files, desc="\033[94mRepresentativeDataset\033[0m"):
@@ -56,7 +56,7 @@ def onnx_forward(onnx_file, example_input):
 
 # 指定数据集目录和模型路径
 data_directory = 'data/val'
-model_path = './mobilenetv3_small_025_val.onnx'
+model_path = './mobilenetv3_small_025_val_opt17.onnx'
 
 onnx_model = onnx.load(model_path)
 tf_rep = prepare(onnx_model)
@@ -145,7 +145,7 @@ print(f"\033[94mConverting model\033[0m")
 tflite_model = converter.convert()
 
 import pathlib
-tflite_models_dir = pathlib.Path("/tmp/tflite_models/")
+tflite_models_dir = pathlib.Path("output/mv3_tftest")
 tflite_models_dir.mkdir(exist_ok=True, parents=True)
 
 tflite_model_file = tflite_models_dir/"mobilenetv3_val.tflite"

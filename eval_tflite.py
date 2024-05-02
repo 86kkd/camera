@@ -15,7 +15,7 @@ parser.add_argument('--lite',default='/tmp/tflite_model/out_put.tflite',metavar=
                     help='path to tflite model')
 parser.add_argument('--val',default='data/valiation',metavar='str',
                     help='path to valiation data')
-parser.add_argument('--image-size',default=224,metavar='N',
+parser.add_argument('--image-size',default=224,metavar='int',
                     help="size of image to feed model")
 parser.add_argument('--cls-file',default='class.txt',metavar='str',
                     help='class type file')
@@ -83,7 +83,7 @@ for batch, (images, lable) in enumerate(val_data):
     # 显示图像和对应的预测标签
     fig, axs = plt.subplots(1, 1, figsize=(20, 2))
     # display_images = tf.transpose(display_images, perm=[0, 3, 1, 2 ])
-    img = (tf.squeeze(display_image).numpy()).astype('float32')  # 转换回 uint8 类型
+    img = (tf.squeeze(display_image).numpy()).astype('uint8')  # 转换回 uint8 类型
     axs.imshow(img)
     axs.set_title(f'predicted: {predicted_label} label:{lable}')
     print(f'the shape of output_data:{output_data}')

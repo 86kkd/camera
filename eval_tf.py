@@ -1,5 +1,4 @@
 import tensorflow as tf
-from network.mobilenet_small import MobileNetV3Small
 import argparse
 from tqdm import tqdm
 import datetime
@@ -9,12 +8,12 @@ import os
 from argu_data import normlize
 
 parser = argparse.ArgumentParser(description="tf model train")
-parser.add_argument('--batch-size','-b',default=1,metavar="N",
+parser.add_argument('--batch-size','-b',default=1,metavar="int",
                     help="input batchsize for training")
 
 parser.add_argument('--data-set',default='data/training',metavar='str',
                     help='where is data to val')
-parser.add_argument('--image-size',default=224,metavar='N',
+parser.add_argument('--image-size',default=224,metavar='int',
                     help="size of image to feed model")
 parser.add_argument('--td',default='/tmp/td',metavar='str',
                     help='tensorboard save dir')
@@ -67,12 +66,9 @@ for batch, (images, lable) in enumerate(val_data):
     # 显示图像和对应的预测标签
     fig, axs = plt.subplots(1, 1, figsize=(20, 2))
     # display_images = tf.transpose(display_images, perm=[0, 3, 1, 2 ])
-    img = (tf.squeeze(images).numpy()).astype('float32')  # 转换回 uint8 类型
+    img = (tf.squeeze(images).numpy()).astype('uint8')  # 转换回 uint8 类型
     axs.imshow(img)
     axs.set_title(f'Label: {predicted_label} real label{lable}')
     print(f'Predicted label: {predicted_label} ')
     axs.axis('off')
     plt.show()
-    # if batch == 2:
-    #     # 一旦达到预设的批次数量，就停止循环
-    #     break

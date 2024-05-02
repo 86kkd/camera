@@ -1,4 +1,3 @@
-from network.mobilenet_small import MobileNetV3Small
 import tensorflow as tf
 import os
 from tqdm import tqdm
@@ -49,7 +48,7 @@ converter = tf.lite.TFLiteConverter.from_saved_model(args.tf_path)
 converter.optimizations = [tf.lite.Optimize.DEFAULT]
 converter.representative_dataset = representative_dataset
 converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
-# converter.target_spec.supported_types = [tf.int8]
+converter.target_spec.supported_types = [tf.int8]
 converter.inference_input_type = tf.int8  # or tf.uint8
 converter.inference_output_type = tf.int8  # or tf.uint8
 # converter._experimental_disable_per_channel = False

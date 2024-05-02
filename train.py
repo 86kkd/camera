@@ -1,25 +1,19 @@
-import tensorflow as tf
-from network.mobilenet_small import MobileNetV3Small
 import argparse
-from tqdm import tqdm
-import datetime
-import pathlib
-from argu_data import normlize
 
 parser = argparse.ArgumentParser(description="tf model train")
-parser.add_argument('--batch-size','-b',default=500,metavar="N",
+parser.add_argument('--batch-size','-b',default=500,metavar="int",
                     help="input batchsize for training")
-parser.add_argument('--epochs',default=599,metavar="N",
+parser.add_argument('--epochs',default=599,metavar="int",
                     help="input num train epochs")
 parser.add_argument('--data-set',default='data/training',metavar='str',
                     help='where is data to train ')
-parser.add_argument('--image-size',default=224,metavar='N',
+parser.add_argument('--image-size',default=224,metavar='int',
                     help="size of image to feed model")
 parser.add_argument('--td',default='/tmp/td',metavar='str',
                     help='tensorboard save dir')
 parser.add_argument('--save-path',default='/tmp/tf_model',metavar='str',
                     help='path to save model')
-parser.add_argument('--num-cls',default=15,metavar='N',
+parser.add_argument('--num-cls',default=15,metavar='int',
                     help='num classes to classify')
 parser.add_argument('--dm',default=0.5,metavar='float',
                     help='depth_multiplyer, change it to config total model parameter size')
@@ -29,9 +23,14 @@ parser.add_argument('--val-rate',default=0.1,metavar='float',
                     help='rate to split input data into train and val data')
 args = parser.parse_args()
 
+import datetime
+import pathlib
+from argu_data import normlize
+import tensorflow as tf
+from network.mobilenetv1.mobilenetv1 import MobileNetV1
 
 
-model = MobileNetV3Small(num_classes=args.num_cls,depth_multiplyer=args.dm)
+model = MobileNetV1(num_classes=args.num_cls,depth_multiplyer=args.dm)
 model.build(input_shape=(None, 224, 224, 3))
 model.compile(optimizer='adam',
                     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
@@ -43,6 +42,7 @@ model.compile(optimizer='adam',
                             ]
 )
 model.summary()
+
 log_dir = pathlib.Path(args.td)
 log_dir = log_dir / datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 tensorboard_callback = tf.keras.callbacks.TensorBoard(
@@ -51,6 +51,14 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(
     # write_graph=True,
     # write_images=True,
     )
+
+models_dir = pathlib.Path(args.save_path)
+models_dir.mkdir(exist_ok=True, parents=True)
+best_model_dir = models_dir/'best_model'
+early_stop  = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+check_point = tf.keras.callbacks.ModelCheckpoint(str(best_model_dir), 
+                                                 monitor='val_loss', save_best_only=True)
+
 
 gpus = tf.config.list_physical_devices('GPU')
 
@@ -114,10 +122,9 @@ try:
         validation_data = val_data,
         epochs = args.epochs,
         steps_per_epoch = len(train_data),
-        callbacks = [tensorboard_callback])
+        callbacks = [tensorboard_callback,early_stop,check_point])
 except KeyboardInterrupt:
     pass
-tflite_models_dir = pathlib.Path(args.save_path)
-tflite_models_dir.mkdir(exist_ok=True, parents=True)
-print(f"\033[92m\n\nSavimg model to {tflite_models_dir._str}\033[0m\n")
-tf.saved_model.save(model, tflite_models_dir)
+final_model_dir = models_dir/'final_model'
+print(f"\033[92m\n\nSavimg model to {str(final_model_dir)}\033[0m\n")
+tf.saved_model.save(model, final_model_dir)
