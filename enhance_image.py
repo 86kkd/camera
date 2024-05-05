@@ -80,7 +80,11 @@ def save_image(enhanced,file_calss,file):
 
 def make_enhanced_img(img,bg_list,file_calss):
     global args
-    enhance_num_per_class = args.per_enhance
+    if args.crope:
+        enhance_num_per_class = 1
+    else:
+        enhance_num_per_class = args.per_enhance
+
     for index in range(enhance_num_per_class):
 
         enhanced = get_enahnced_img(img,bg_list)
@@ -105,7 +109,10 @@ def split_files(files):
 if __name__ == "__main__":
     # Read the image
     background_path = args.bg_path
-    img_path = args.img_path
+    if args.crope:
+        img_path = args.bg_path 
+    else:
+        img_path = args.img_path
     
     bg_list = read_background(background_path)
 
