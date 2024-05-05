@@ -3,28 +3,31 @@ import numpy as np
 import cv2
 # data argumentation
 
-def gamma_transform(img, gamma):
-    is_gray = img.ndim == 2 or img.shape[1] == 1
-    if is_gray:
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    illum = hsv[..., 2] / 255.
-    illum = np.power(illum, gamma)
-    v = illum * 255.
-    v[v > 255] = 255
-    v[v < 0] = 0
-    hsv[..., 2] = v.astype(np.uint8)
-    img = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-    if is_gray:
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    return img
+# def gamma_transform(tensor, gamma):
+#     if tensor.shape.ndims == 3:
+#         tensor = tf.expand_dims(tensor, axis=-1)
+#     # 将BGR转换为HSV
+#     hsv_tensor = tf.image.rgb_to_hsv(tensor)
+#     illum = hsv_tensor[ ...,1:2]
+#     illum = tf.pow(illum, gamma)
+    
+#     v_channel = tf.clip_by_value(illum ,  0., 1)
+
+#     modified_hsv_tensor = tf.concat([
+#         hsv_tensor[..., :1],
+#         v_channel[...,:1],
+#         hsv_tensor[...,-1:]
+#     ], axis=-1)
+#     tensor = tf.image.hsv_to_rgb(modified_hsv_tensor)
+
+#     return tensor
 
 def argument(x,y):
     x = tf.image.random_contrast(x, 0.8, 1.2)
     x = tf.image.random_saturation(x,0.8,1.2)
-    x_np = x.numpy()
-    x = gamma_transform(x,2)
-    # x = c2.convertScaleAbs(x.numpy(),alpha=1,beta=np.random.uniform(2.5, 5.0, size=1))
+
+    # x = gamma_transform(x,2)
+    
     return x,y
 
 def normlize(x,y):
