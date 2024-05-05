@@ -89,5 +89,6 @@ class MobileNetV1(tf.keras.Model):
     
 if __name__ == '__main__':
     model = MobileNetV1(num_classes=15,depth_multiplyer=0.5)
-    model.build(input_shape=(None, 224, 224, 3))
+    # model.build(input_shape=(None, 224, 224, 3))
+    model.build(input_shape=(None,128,128,3))
     model.summary()
