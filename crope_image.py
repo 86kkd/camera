@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-
+from scipy.ndimage import zoom
 # def rotate_image(image, angle,ratio):
 #   image_center = tuple(np.array(image.shape[1::-1]) / 2)
 #   random_angle = angle + np.random.choice(np.arange(-180,181,step=90),size=1).item()
@@ -62,9 +62,37 @@ def get_approx_angle(approx) -> list[np.array,np.array]:
       np.dot(array_a,array_b)/(np.linalg.norm(array_a)*np.linalg.norm(array_b))))
   
   return center, angle
-  
-def crope_image(img,cropped_size = np.array([224,224])):
+
+def restore_to_original_size(cropped_img, original_height, original_width):
+    # 计算缩放比例
+    scale_height = original_height / cropped_img.shape[0]
+    scale_width = original_width / cropped_img.shape[1]
+    
+    # 使用zoom函数进行插值放大
+    restored_img = zoom(cropped_img, (scale_height, scale_width, *([1] * (cropped_img.ndim - 2))))
+    
+    return restored_img
+
+def initial_crope_image(img,ratio):
+    # 获取原始图像的宽度和高度
+    original_height, original_width = img.shape[:2]
+    
+    # 计算裁剪后的宽度和高度
+    new_width = int(original_width * ratio)
+    new_height = new_width 
+    # 根据新的尺寸裁剪图像
+    # 假设我们从图像的中心开始裁剪
+    start_row = (original_height - new_height) // 2
+    start_col = (original_width - new_width) // 2
+    img = img[start_row:start_row + new_height, start_col:start_col + new_width]
+    # 返回裁剪后的图像
+
+    return img
+
+def crope_image(img:np.ndarray,cropped_size = np.array([128,128])):
   # floodfill algorithm
+  
+  img = initial_crope_image(img,0.6)
   mask = np.zeros(np.add(img.shape,2)[:2], np.uint8)
   # mask_2 = np.ones(np.add(background.shape,2)[:2], np.uint8)
   # mask_2[:][449:]
@@ -97,41 +125,42 @@ def crope_image(img,cropped_size = np.array([224,224])):
       crope_start = crope_center - cropped_size//2
       crope_end = crope_center + cropped_size//2
       
-      crope_start,crope_end = check_in_range_and_fix(crope_start,crope_end,img.shape[:2])
+      # crope_start,crope_end = check_in_range_and_fix(crope_start,crope_end,img.shape[:2])
       crope_start = crope_start.astype(int)
       crope_end = crope_end.astype(int)
 
       break
-  # assert find_box,"No quaters found in the image"
-  if not find_box:
 
-    # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-    # cv2.drawContours(approx_mask, contour, -1, 255, 3)
-    # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-    # cv2.drawContours(contour_mask, contours , -1, 255, 3)
-    # plt.subplot(221),plt.imshow(background),plt.title("baclground")
-    # plt.subplot(222),plt.imshow(contour_mask),plt.title("contour_mask")
-    # plt.subplot(223),plt.imshow(mask),plt.title("mask")
-    # plt.subplot(224),plt.imshow(approx_mask),plt.title("approx_mask")
-    # plt.show()
-    # plt.clf()
+  if not find_box:
+    background= img
+    approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+    cv2.drawContours(approx_mask, contour, -1, 255, 3)
+    contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+    cv2.drawContours(contour_mask, contours , -1, 255, 3)
+    plt.subplot(221),plt.imshow(background),plt.title("baclground")
+    plt.subplot(222),plt.imshow(contour_mask),plt.title("contour_mask")
+    plt.subplot(223),plt.imshow(mask),plt.title("mask")
+    plt.subplot(224),plt.imshow(approx_mask),plt.title("approx_mask")
+    plt.show()
+    plt.clf()
 
     assert False, "No quaters found in the image"
   # calculate the image size in the realworld snapshot image
 
-  final_img = final_img[crope_start[1]:crope_end[1],crope_start[0]:crope_end[0]]
-  if final_img.shape[0] < 320 or final_img.shape[1] < 320:
+  final_img = img[crope_start[1]:crope_end[1],crope_start[0]:crope_end[0]]
+  if final_img.shape[0] < cropped_size[0] or final_img.shape[1] < cropped_size[1]:
     assert False, "The image is too small"
     
-  # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-  # cv2.drawContours(approx_mask, contour, -1, 255, 3)
-  # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-  # cv2.drawContours(contour_mask, contours , -1, 255, 3)
-  # plt.subplot(221),plt.imshow(rotated_mask),plt.title("rotated_mask")
-  # plt.subplot(222),plt.imshow(background),plt.title("background")
-  # plt.subplot(223),plt.imshow(approx_mask),plt.title("approx_mask")
-  # plt.subplot(224),plt.imshow(final_img),plt.title("final_img")
-  # plt.show()
-  # plt.clf()
+  background = img
+  approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  cv2.drawContours(approx_mask, [approx], -1, 255, 3)
+  contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+  cv2.drawContours(contour_mask, contours , -1, 255, 3)
+  plt.subplot(221),plt.imshow(img),plt.title("img")
+  plt.subplot(222),plt.imshow(background),plt.title("background")
+  plt.subplot(223),plt.imshow(approx_mask),plt.title("approx_mask")
+  plt.subplot(224),plt.imshow(final_img),plt.title("final_img")
+  plt.show()
+  plt.clf()
   
   return final_img
