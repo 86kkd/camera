@@ -11,8 +11,15 @@ from crope_image import crope_image
 parser = argparse.ArgumentParser(description='crope image or enhace image')
 parser.add_argument('--crope',action='store_true',
                     help='corpe image or enhance')
+parser.add_argument('--save-path',default='./image_enhanced',metavar='str',
+                    help='path to save enhanced image')
+parser.add_argument('--per_enhance',default=30,metavar='int',
+                    help='num enhanced image per image in each class')
+parser.add_argument('--bg_img',default='./bg_img',metavar='str',
+                    help='path to bg_img if crope selected it is the path to corping img')
+parser.add_argument('--img-path',default='./image',metavar='str',
+                    help='path to img_path if crope selected it is ignored')
 args = parser.parse_args()
-
 fail_backgroud = np.array([])
 
 def gamma_transform(img, gamma):
@@ -62,7 +69,8 @@ def read_background(path):
     return sample_list
 
 def save_image(enhanced,file_calss,file):
-    global save_path
+    global args
+    save_path = args.save_path
     now = datetime.now()
     current_time = now.strftime("%Y_%m_%d")
     if not os.path.exists(f'{save_path}/{current_time}/{file_calss}'):
@@ -71,7 +79,8 @@ def save_image(enhanced,file_calss,file):
         print(f'{file} saved')
 
 def make_enhanced_img(img,bg_list,file_calss):
-    global enhance_num_per_class
+    global args
+    enhance_num_per_class = args.per_enhance
     for index in range(enhance_num_per_class):
 
         enhanced = get_enahnced_img(img,bg_list)
@@ -95,10 +104,9 @@ def split_files(files):
 
 if __name__ == "__main__":
     # Read the image
-    background_path = './bg_img'
-    img_path = './image'
-    save_path = './image_enhanced'
-    enhance_num_per_class = 30
+    background_path = args.bg_path
+    img_path = args.img_path
+    
     bg_list = read_background(background_path)
 
     try:
@@ -110,5 +118,5 @@ if __name__ == "__main__":
 
     json_string = json.dumps(fail_backgroud.tolist())
     with open('data_enhance_fail.json', 'w') as f:
-        json.dump(json_string, f)
+        json.dump(json_string, f,indent=4,width=30, compact=True)
     print('\n\033[93mFinished enahcenment fail bg image in data_enhance_fail.json\033[0m')
