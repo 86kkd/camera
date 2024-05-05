@@ -113,7 +113,7 @@ def crope_image(img:np.ndarray,cropped_size = np.array([128,128])):
 
 
     # get the position and angle of image
-    if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 5000 and cv2.contourArea(approx) < 10000:
+    if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 4000 and cv2.contourArea(approx) < 10000:
       # mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
       # cv2.drawContours(mask,[approx] , -1, 255, 3)
       # plt.imshow(mask),plt.show()
@@ -132,17 +132,39 @@ def crope_image(img:np.ndarray,cropped_size = np.array([128,128])):
       break
 
   if not find_box:
-      # background= img
-      # approx_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-      # cv2.drawContours(approx_mask, [approx], -1, 255, 3)
-      # contour_mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
-      # cv2.drawContours(contour_mask, contour , -1, 255, 3)
-      # plt.subplot(221),plt.imshow(background),plt.title("baclground")
-      # plt.subplot(222),plt.imshow(contour_mask),plt.title("contour_mask")
-      # plt.subplot(223),plt.imshow(mask),plt.title("mask")
-      # plt.subplot(224),plt.imshow(approx_mask),plt.title("approx_mask")
-      # plt.show()
-      # plt.clf()
+      # for contour in contours3 + contours2+contours:
+      #   # calculate perimeter
+      #   perimeter = cv2.arcLength(contour, True)
+      #   approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
+
+
+      #   # get the position and angle of image
+      #   if len(approx) == 4 and cv2.isContourConvex(approx) and cv2.contourArea(approx) > 4000 and cv2.contourArea(approx) < 10000:
+      #     # mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
+      #     # cv2.drawContours(mask,[approx] , -1, 255, 3)
+      #     # plt.imshow(mask),plt.show()
+
+      #     approx = np.squeeze(approx)
+      #     find_box = True
+
+      #     crope_center = approx.mean(axis=0)
+      #     crope_start = crope_center - cropped_size//2
+      #     crope_end = crope_center + cropped_size//2
+          
+      #     # crope_start,crope_end = check_in_range_and_fix(crope_start,crope_end,img.shape[:2])
+      #     crope_start = crope_start.astype(int)
+      #     crope_end = crope_end.astype(int)
+
+      #   approx_mask = np.zeros(np.add(img.shape,2)[:2], np.uint8)
+      #   cv2.drawContours(approx_mask, [approx], -1, 255, 3)
+      #   contour_mask = np.zeros(np.add(img.shape,2)[:2], np.uint8)
+      #   cv2.drawContours(contour_mask, contour , -1, 255, 3)
+      #   plt.subplot(221),plt.imshow(img),plt.title("baclground")
+      #   plt.subplot(222),plt.imshow(contour_mask),plt.title("contour_mask")
+      #   plt.subplot(223),plt.imshow(mask),plt.title("mask")
+      #   plt.subplot(224),plt.imshow(approx_mask),plt.title("approx_mask")
+      #   plt.show()
+      #   plt.clf()
       assert False, "No quaters found in the image"
 
 
