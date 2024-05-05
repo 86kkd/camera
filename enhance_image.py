@@ -13,9 +13,9 @@ parser.add_argument('--crope',action='store_true',
                     help='corpe image or enhance')
 parser.add_argument('--save-path',default='./image_enhanced',metavar='str',
                     help='path to save enhanced image')
-parser.add_argument('--per_enhance',default=30,metavar='int',
+parser.add_argument('--per-enhance',default=30,metavar='int',
                     help='num enhanced image per image in each class')
-parser.add_argument('--bg_path',default='./bg_img',metavar='str',
+parser.add_argument('--bg-path',default='./bg_img',metavar='str',
                     help='path to bg_img if crope selected it is the path to corping img')
 parser.add_argument('--img-path',default='./image',metavar='str',
                     help='path to img_path if crope selected it is ignored')
@@ -48,13 +48,14 @@ def get_enahnced_img(img,bg_list):
         else:
             enhanced = enhance_image(img,bg_img)
             enhanced = gamma_transform(enhanced,np.random.uniform(0.3,3,[1]))
-    except :
+    except AssertionError:
         print(f"Error can't find image in background this is the {len(fail_backgroud)}th")
         fail_backgroud = np.append(fail_backgroud,background)
         bg_list.remove(background)
-        # cv2.imshow('bg_img',bg_img)
-        # cv2.waitKey(0)
-        return get_enahnced_img(img,bg_list)
+        if args.crope:
+            return None
+        else:
+            return get_enahnced_img(img,bg_list)
     return enhanced
 
 def read_background(path):
@@ -125,5 +126,5 @@ if __name__ == "__main__":
 
     json_string = json.dumps(fail_backgroud.tolist())
     with open('data_enhance_fail.json', 'w') as f:
-        json.dump(json_string, f,indent=4,width=30, compact=True)
+        json.dump(json_string, f,indent=4)
     print('\n\033[93mFinished enahcenment fail bg image in data_enhance_fail.json\033[0m')
