@@ -15,7 +15,7 @@ parser.add_argument('--save-path',default='./image_enhanced',metavar='str',
                     help='path to save enhanced image')
 parser.add_argument('--per_enhance',default=30,metavar='int',
                     help='num enhanced image per image in each class')
-parser.add_argument('--bg_img',default='./bg_img',metavar='str',
+parser.add_argument('--bg_path',default='./bg_img',metavar='str',
                     help='path to bg_img if crope selected it is the path to corping img')
 parser.add_argument('--img-path',default='./image',metavar='str',
                     help='path to img_path if crope selected it is ignored')
