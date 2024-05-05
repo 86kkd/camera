@@ -5,9 +5,15 @@ from utils import *
 import os     
 from datetime import datetime
 import json
+import argparse
+from crope_image import crope_image
+
+parser = argparse.ArgumentParser(description='crope image or enhace image')
+parser.add_argument('--crope',action='store_true',
+                    help='corpe image or enhance')
+args = parser.parse_args()
 
 fail_backgroud = np.array([])
-detect_error = 0
 
 def gamma_transform(img, gamma):
     is_gray = img.ndim == 2 or img.shape[1] == 1
@@ -30,13 +36,13 @@ def get_enahnced_img(img,bg_list):
     background = np.random.choice(bg_list, 1, replace=True)
     bg_img = cv2.imread(background.item())
     try:
-        enhanced = enhance_image(img,bg_img)
-
-        enhanced = gamma_transform(enhanced,np.random.uniform(0.3,3,[1]))
+        if args.crope:
+            enhanced = crope_image(img)
+        else:
+            enhanced = enhance_image(img,bg_img)
+            enhanced = gamma_transform(enhanced,np.random.uniform(0.3,3,[1]))
     except :
-        global detect_error
-        detect_error += 1
-        print(f"Error can't find image in background this is the {detect_error}th")
+        print(f"Error can't find image in background this is the {len(fail_backgroud)}th")
         fail_backgroud = np.append(fail_backgroud,background)
         bg_list.remove(background)
         # cv2.imshow('bg_img',bg_img)
@@ -79,30 +85,31 @@ def make_enhanced_img(img,bg_list,file_calss):
         save_image(enhanced,file_calss,f'{total_files}_{current_time}.jpg')
         index += 1
 
-# Read the image
-background_path = './bg_img'
-img_path = './image'
-save_path = './image_enhanced'
-enhance_num_per_class = 30
-bg_list = read_background(background_path)
-total_files = None
+def split_files(files):
+    for file in files:
+        extend_name = ('.jpg','.png')
+        if file.endswith(extend_name):
+            file_calss = root.split('/')[-1]
+            root_file = os.path.join(root,file)
+            img = cv2.imread(root_file)
+            make_enhanced_img(img,bg_list,file_calss)
 
-try:
-    for root,dir,files in os.walk(img_path):
-        for file in files:
-            total_files = 0
-            extend_name = ('.jpg','.png')
-            if file.endswith(extend_name):
-                file_calss = root.split('/')[-1]
-                root_file = os.path.join(root,file)
-                img = cv2.imread(root_file)
-                make_enhanced_img(img,bg_list,file_calss)
-                total_files += 1
-except KeyboardInterrupt:
-    pass
+if __name__ == "__main__":
+    # Read the image
+    background_path = './bg_img'
+    img_path = './image'
+    save_path = './image_enhanced'
+    enhance_num_per_class = 30
+    bg_list = read_background(background_path)
+
+    try:
+        for root,dir,files in os.walk(img_path):
+            split_files(files)
+    except KeyboardInterrupt:
+        pass
 
 
-json_string = json.dumps(fail_backgroud.tolist())
-with open('data_enhance_fail.json', 'w') as f:
-    json.dump(json_string, f)
-print('\n\033[93mFinished enahcenment fail bg image in data_enhance_fail.json\033[0m')
+    json_string = json.dumps(fail_backgroud.tolist())
+    with open('data_enhance_fail.json', 'w') as f:
+        json.dump(json_string, f)
+    print('\n\033[93mFinished enahcenment fail bg image in data_enhance_fail.json\033[0m')
