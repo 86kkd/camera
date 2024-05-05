@@ -4,18 +4,20 @@ parser = argparse.ArgumentParser(description="tf model train")
 parser.add_argument('--batch-size','-b',default=1,metavar="int",
                     help="input batchsize for training")
 
-parser.add_argument('--data-set',default='data_set/training',metavar='str',
+parser.add_argument('--data-set',default='data_set/val_bright/image_qvga_200',metavar='str',
                     help='where is data to val')
 parser.add_argument('--image-size',default=224,metavar='int',
                     help="size of image to feed model")
 parser.add_argument('--td',default='/tmp/td',metavar='str',
                     help='tensorboard save dir')
-parser.add_argument('--model-path',default='/tmp/tf_model',metavar='str',
+parser.add_argument('--model-path',default='output/mobilenetv1/best_model',metavar='str',
                     help='path to save model')
 
-parser.add_argument('--cls-file',default='class.txt',metavar='str',
+parser.add_argument('--cls-file',default='data_set/val_bright/image_qvga_200/class.txt',metavar='str',
                     help='class type file')
 
+parser.add_argument('--visible',action='store_true',
+                    help='if visual predict resulet')
 args = parser.parse_args()
 
 import tensorflow as tf
@@ -58,14 +60,26 @@ for batch, (images, lable) in enumerate(val_data):
     predictions = model(images)
     
     # 获取最可能的类别标签的索引
-    predicted_label = tf.argmax(tf.squeeze(predictions), axis=0).numpy() # 使用 .numpy() 来获取 Python 整数
+    predicted_label = tf.argmax(tf.squeeze(predictions), axis=0)
 
-    # 显示图像和对应的预测标签
-    fig, axs = plt.subplots(1, 1, figsize=(20, 2))
-    # display_images = tf.transpose(display_images, perm=[0, 3, 1, 2 ])
-    img = (tf.squeeze(images).numpy()).astype('uint8')  # 转换回 uint8 类型
-    axs.imshow(img)
-    axs.set_title(f'Label: {predicted_label} real label{lable}')
-    print(f'Predicted label: {predicted_label} ')
-    axs.axis('off')
-    plt.show()
+    if args.visible:
+        # 显示图像和对应的预测标签
+        fig, axs = plt.subplots(1, 1, figsize=(20, 2))
+        # display_images = tf.transpose(display_images, perm=[0, 3, 1, 2 ])
+        img = (images[0].numpy()).astype('uint8')  # 转换回 uint8 类型
+        axs.imshow(img)
+        if args.batch_size!=1:
+            axs.set_title(f'Label: {predicted_label[0].numpy()} real label{lable[0].numpy()}')
+            print(f'Predicted label: {predicted_label[0].numpy()} ')
+        else:
+            axs.set_title(f'Label: {predicted_label.numpy()} real label{lable[0].numpy()}')
+            print(f'Predicted label: {predicted_label.numpy()} ')
+        axs.axis('off')
+        plt.show()
+    predicted_label = tf.cast(predicted_label,tf.float64)
+    lable = tf.cast(lable,tf.float64)
+    batch = tf.cast(batch,tf.float64)
+    accracy = tf.reduce_sum(tf.cast(predicted_label == lable,tf.float64))/batch
+
+
+print(f'the result of evaluate {accracy}')

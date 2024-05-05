@@ -9,7 +9,8 @@ parser.add_argument('--image-size',default=224,metavar='int',
                     help="size of image to feed model")
 parser.add_argument('--cls-file',default='class.txt',metavar='str',
                     help='class type file')
-
+parser.add_argument('--visiable',action='store_true',
+                    help='if visiable')
 args = parser.parse_args()
 
 import tensorflow as tf
@@ -55,6 +56,7 @@ interpreter.allocate_tensors()
 print(input_details)
 print(output_details)
 
+correct = 0
 # 对数据集进行推理
 for batch, (images, lable) in enumerate(val_data):
     # 由于现在每次处理一张图片，所以不需要 take(1) 限制和 batch 条件判断
@@ -75,15 +77,18 @@ for batch, (images, lable) in enumerate(val_data):
     # 获取最可能的类别标签的索引
     predicted_label = tf.argmax(tf.squeeze(output_data), axis=0).numpy() # 使用 .numpy() 来获取 Python 整数
 
-    # 显示图像和对应的预测标签
-    fig, axs = plt.subplots(1, 1, figsize=(20, 2))
-    # display_images = tf.transpose(display_images, perm=[0, 3, 1, 2 ])
-    img = (tf.squeeze(display_image).numpy()).astype('uint8')  # 转换回 uint8 类型
-    axs.imshow(img)
-    axs.set_title(f'predicted: {predicted_label} label:{lable}')
-    print(f'the shape of output_data:{output_data}')
-    print(f'Predicted label: {predicted_label}')
-    axs.axis('off')
-    plt.show()
-
-
+    if args.visiable:
+        # 显示图像和对应的预测标签
+        fig, axs = plt.subplots(1, 1, figsize=(20, 2))
+        # display_images = tf.transpose(display_images, perm=[0, 3, 1, 2 ])
+        img = (tf.squeeze(display_image).numpy()).astype('uint8')  # 转换回 uint8 类型
+        axs.imshow(img)
+        axs.set_title(f'predicted: {predicted_label} label:{lable}')
+        print(f'the shape of output_data:{output_data}')
+        print(f'Predicted label: {predicted_label}')
+        axs.axis('off')
+        plt.show()
+    
+    correct += predicted_label == lable
+accuracy = correct/batch
+print(f'the accuracy of model is {accuracy}%')
