@@ -91,7 +91,6 @@ def enhance_image(img,background,cropped_size = np.array([320,320])):
       # mask = np.zeros(np.add(background.shape,2)[:2], np.uint8)
       # cv2.drawContours(mask,[approx] , -1, 255, 3)
       # plt.imshow(mask),plt.show()
-      center, angle = get_approx_angle(approx)
 
       approx = np.squeeze(approx)
       approx_up_width = np.sqrt(np.dot(approx[0]-approx[1],approx[0]-approx[1])) 
@@ -107,8 +106,8 @@ def enhance_image(img,background,cropped_size = np.array([320,320])):
       crope_start = crope_center - cropped_size//2
       crope_end = crope_center + cropped_size//2
       
-      background = cv2.circle(background, np.int32(crope_start), radius=0, color=(255, 255, 255), thickness=10)
-      background = cv2.circle(background, np.int32(crope_end), radius=0, color=(255, 255, 255), thickness=10)
+      # background = cv2.circle(background, np.int32(crope_start), radius=0, color=(255, 255, 255), thickness=10)
+      # background = cv2.circle(background, np.int32(crope_end), radius=0, color=(255, 255, 255), thickness=10)
       # plt.imshow(background),plt.show()
       
       crope_start,crope_end = check_in_range_and_fix(crope_start,crope_end,background.shape[:2])
