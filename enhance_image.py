@@ -71,7 +71,6 @@ def save_image(enhanced,file_calss,file):
         print(f'{file} saved')
 
 def make_enhanced_img(img,bg_list,file_calss):
-    global total_files
     global enhance_num_per_class
     for index in range(enhance_num_per_class):
 
@@ -82,7 +81,7 @@ def make_enhanced_img(img,bg_list,file_calss):
 
         now = datetime.now()
         current_time = now.strftime("%Y_%d_%H_%M_%S_%f")
-        save_image(enhanced,file_calss,f'{total_files}_{current_time}.jpg')
+        save_image(enhanced,file_calss,f'{current_time}.jpg')
         index += 1
 
 def split_files(files):
