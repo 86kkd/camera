@@ -4,16 +4,16 @@ parser = argparse.ArgumentParser(description="tf model train")
 parser.add_argument('--batch-size','-b',default=1,metavar="int",
                     help="input batchsize for training")
 
-parser.add_argument('--data-set',default='data_set/val_bright/image_qvga_200',metavar='str',
+parser.add_argument('--data-set',default='data_set/2024_05_06_val/image_qvga_800',metavar='str',
                     help='where is data to val')
-parser.add_argument('--image-size',default=224,metavar='int',
+parser.add_argument('--image-size',default=128,metavar='int',
                     help="size of image to feed model")
 parser.add_argument('--td',default='/tmp/td',metavar='str',
                     help='tensorboard save dir')
-parser.add_argument('--model-path',default='output/mobilenetv1/best_model',metavar='str',
+parser.add_argument('--model-path',default='output/mobilenetv1_520/best_model',metavar='str',
                     help='path to save model')
 
-parser.add_argument('--cls-file',default='data_set/val_bright/image_qvga_200/class.txt',metavar='str',
+parser.add_argument('--cls-file',default='data_set/2024_05_06_val/image_qvga_800/class.txt',metavar='str',
                     help='class type file')
 
 parser.add_argument('--visible',action='store_true',
@@ -23,6 +23,7 @@ args = parser.parse_args()
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from dataloder.argu_data import normlize
+from tqdm import tqdm
 
 if args.cls_file:
     with open(args.cls_file, 'r') as file:
@@ -55,7 +56,8 @@ val_data = val_data.map(normlize)
 
 model = tf.saved_model.load(args.model_path)
 
-for batch, (images, lable) in enumerate(val_data):
+correct = 0
+for batch, (images, lable) in tqdm(enumerate(val_data)):
     # 由于现在每次处理一张图片，所以不需要 take(1) 限制和 batch 条件判断
     predictions = model(images)
     
@@ -79,7 +81,7 @@ for batch, (images, lable) in enumerate(val_data):
     predicted_label = tf.cast(predicted_label,tf.float64)
     lable = tf.cast(lable,tf.float64)
     batch = tf.cast(batch,tf.float64)
-    accracy = tf.reduce_sum(tf.cast(predicted_label == lable,tf.float64))/batch
-
-
-print(f'the result of evaluate {accracy}')
+    correct += tf.reduce_sum(tf.cast(predicted_label == lable,tf.float64))
+    accracy = correct/(batch+1)
+    # print(f'the result of evaluate {accracy*100:.3f}%')
+print(f'\033[94mthe result of evaluate {accracy*100:.3f}%\033[0m')
