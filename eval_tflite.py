@@ -1,13 +1,13 @@
 import argparse
 
 parser = argparse.ArgumentParser(description="eval tflite model")
-parser.add_argument('--lite',default='/tmp/tflite_model/out_put.tflite',metavar='str',
+parser.add_argument('--lite',default='output/mobilenetv1_520/tflite_model/out_put.tflite',metavar='str',
                     help='path to tflite model')
-parser.add_argument('--val',default='data_set/valiation',metavar='str',
+parser.add_argument('--val',default='data_set/2024_05_06_val/image_qvga_800',metavar='str',
                     help='path to valiation data')
-parser.add_argument('--image-size',default=224,metavar='int',
+parser.add_argument('--image-size',default=128,metavar='int',
                     help="size of image to feed model")
-parser.add_argument('--cls-file',default='class.txt',metavar='str',
+parser.add_argument('--cls-file',default='data_set/2024_05_06_val/image_qvga_800/class.txt',metavar='str',
                     help='class type file')
 parser.add_argument('--visiable',action='store_true',
                     help='if visiable')
@@ -17,6 +17,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 from dataloder.argu_data import normlize
+from tqdm import tqdm
 
 if args.cls_file:
     with open(args.cls_file, 'r') as file:
@@ -53,18 +54,16 @@ input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 interpreter.allocate_tensors()
 
-print(input_details)
-print(output_details)
+# print(input_details)
+# print(output_details)
 
 correct = 0
-for batch, (images, lable) in enumerate(val_data):
+for batch, (images, lable) in tqdm(enumerate(val_data)):
     # 由于现在每次处理一张图片，所以不需要 take(1) 限制和 batch 条件判断
     display_image = images
     input_type = input_details[0]['dtype']
     if input_type == np.int8:
         input_scale, input_zero_point = input_details[0]['quantization']
-        print("Input scale:", input_scale)
-        print("Input zero point:", input_zero_point)
         images = (images / input_scale) + input_zero_point
         # images = (images / 1.0) - 127
         images = tf.cast(images,input_details[0]["dtype"])

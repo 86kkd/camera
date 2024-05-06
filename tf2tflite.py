@@ -1,12 +1,14 @@
 import argparse
 
 parser = argparse.ArgumentParser(description="conver tf to tflite")
-parser.add_argument('--tf-path',default='/tmp/tf_model',metavar='str',
+parser.add_argument('--tf-path',default='output/mobilenetv1_520/best_model',metavar='str',
                     help="the path to saved tf model")
-parser.add_argument('--lite-path',default='/tmp/tflite_model',metavar='str',
+parser.add_argument('--lite-path',default='output/mobilenetv1_520/tflite_model',metavar='str',
                     help="the path t0 saved tflite model")
-parser.add_argument('--val-path',default='./data_set/valiation',metavar='str',
+parser.add_argument('--val-path',default='./data_set/2024_05_06_val',metavar='str',
                     help='path to valudate data')
+parser.add_argument('--img-size',default=128,metavar='int',
+                    help='input image size')
 args = parser.parse_args()
 
 import tensorflow as tf
@@ -20,7 +22,7 @@ def representative_dataset():
     def load_image(path):
         img = tf.io.read_file(path)
         img = tf.image.decode_jpeg(img, channels=3)
-        img = tf.image.resize(img, [224, 224])
+        img = tf.image.resize(img, [args.img_size, args.img_size])
 
         img ,_ = normlize(img,None)
 

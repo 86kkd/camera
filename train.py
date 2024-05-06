@@ -7,7 +7,7 @@ parser.add_argument('--epochs',default=599,metavar="int",
                     help="input num train epochs")
 parser.add_argument('--data-set',default='data_set/2024_05_04_train',metavar='str',
                     help='where is data to train ')
-parser.add_argument('--image-size',default=224,metavar='int',
+parser.add_argument('--image-size',default=128,metavar='int',
                     help="size of image to feed model")
 parser.add_argument('--td',default='/tmp/td',metavar='str',
                     help='tensorboard save dir')
@@ -17,7 +17,7 @@ parser.add_argument('--num-cls',default=15,metavar='int',
                     help='num classes to classify')
 parser.add_argument('--dm',default=0.5,metavar='float',
                     help='depth_multiplyer, change it to config total model parameter size')
-parser.add_argument('--cls-file',default='class.txt',metavar='str',
+parser.add_argument('--cls-file',default='data_set/2024_05_04_train/class.txt',metavar='str',
                     help='class type file')
 parser.add_argument('--val-rate',default=0.1,metavar='float',
                     help='rate to split input data into train and val data')
@@ -29,9 +29,9 @@ from dataloder.argu_data import normlize, argument
 import tensorflow as tf
 from network.mobilenetv1.mobilenetv1 import MobileNetV1
 
-
+input = (None,128,128,3)
 model = MobileNetV1(num_classes=args.num_cls,depth_multiplyer=args.dm)
-model.build(input_shape=(None, 224, 224, 3))
+model.build(input_shape=input)
 model.compile(optimizer='adam',
                     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
                     metrics=[tf.keras.metrics.SparseCategoricalAccuracy(),
@@ -55,7 +55,7 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(
 models_dir = pathlib.Path(args.save_path)
 models_dir.mkdir(exist_ok=True, parents=True)
 best_model_dir = models_dir/'best_model'
-early_stop  = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+early_stop  = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=100)
 check_point = tf.keras.callbacks.ModelCheckpoint(str(best_model_dir), 
                                                  monitor='val_loss', save_best_only=True)
 

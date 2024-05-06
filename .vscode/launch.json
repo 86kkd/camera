@@ -9,7 +9,10 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            // "args": ["--visible"]
+            "args": ["--lite","/home/linda/Downloads/tupian.tflite"]
+
         },
         {
             "name": "test_mobile",
